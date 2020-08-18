@@ -81,6 +81,7 @@ default values.`,
 	rootCmd.AddCommand(viewBlockCmd)
 	rootCmd.AddCommand(viewAccountCmd)
 	rootCmd.AddCommand(viewNetworksCmd)
+	rootCmd.AddCommand(viewTransactionCmd)
 
 	// Utils
 	rootCmd.AddCommand(utilsAsserterConfigurationCmd)
