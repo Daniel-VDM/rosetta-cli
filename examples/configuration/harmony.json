@@ -9,48 +9,178 @@
       }
     }
   },
-  "online_url": "http://localhost:9700",
-  "data_directory": "",
+  "online_url": "http://localhost:9799",
   "http_timeout": 300,
-  "tip_delay": 300,
-  "prefunded_accounts": [
-    {
-      "privkey": "0x1f84c95ac16e6a50f08d44c7bde7aff8742212fda6e4321fde48bf83bef266dc",
-      "account_identifier": {
-        "address": "one155jp2y76nazx8uw5sa94fr0m4s5aj8e5xm6fu3",
-        "metadata": {
-          "hex_address": "0xA5241513DA9F4463F1d4874b548dFBAC29D91f34"
-        }
-      },
-      "curve_type": "secp256k1",
-      "currency": {
-        "symbol": "ONE",
-        "decimals": 18
-      }
-    }
-  ],
+  "max_retries": 0,
+  "retry_elapsed_time": 5,
+  "max_online_connections": 0,
+  "max_sync_concurrency": 0,
+  "tip_delay": 60,
+  "log_configuration": false,
   "data": {
-    "historical_balance_enabled": false,
+    "historical_balance_enabled": true,
     "reconciliation_disabled": false,
-    "inactive_discrepency_search_disabled": false,
-    "balance_tracking_disabled": false,
-    "end_conditions": {
-      "reconciliation_coverage": 0.95
-    },
+    "inactive_discrepency_search_disabled": true,
+    "balance_tracking_disabled": true,
     "results_output_file": ""
   },
   "construction": {
-    "offline_url": "http://localhost:9700",
+    "offline_url": "http://localhost:9799",
     "max_offline_connections": 1,
     "stale_depth": 0,
-    "broadcast_limit": 0,
+    "broadcast_limit": 1,
     "ignore_broadcast_failures": false,
-    "clear_broadcasts": false,
+    "clear_broadcasts": true,
     "broadcast_behind_tip": false,
     "block_broadcast_limit": 0,
     "rebroadcast_all": false,
+    "prefunded_accounts": [
+      {
+        "privkey": "1f84c95ac16e6a50f08d44c7bde7aff8742212fda6e4321fde48bf83bef266dc",
+        "account_identifier": {
+          "address": "one155jp2y76nazx8uw5sa94fr0m4s5aj8e5xm6fu3",
+          "metadata": {
+            "hex_address": "0xA5241513DA9F4463F1d4874b548dFBAC29D91f34"
+          }
+        },
+        "curve_type": "secp256k1",
+        "currency": {
+          "symbol": "ONE",
+          "decimals": 18
+        }
+      }
+    ],
     "workflows": [
-      // TODO: implement
-    ]
+      {
+        "name": "request_funds",
+        "concurrency": 1,
+        "scenarios": [
+          {
+            "name": "find_account",
+            "actions": [
+              {
+                "input": "{\"symbol\":\"ONE\", \"decimals\":18}",
+                "type": "set_variable",
+                "output_path": "currency"
+              },
+              {
+                "input": "{\"minimum_balance\":{\"value\": \"0\", \"currency\": {{currency}}}, \"create_limit\":1}",
+                "type": "find_balance",
+                "output_path": "random_account"
+              }
+            ]
+          },
+          {
+            "name": "request",
+            "actions": [
+              {
+                "input": "{\"account_identifier\": {{random_account.account_identifier}}, \"minimum_balance\":{\"value\": \"10000000000000000\", \"currency\": {{currency}}}}",
+                "type": "find_balance",
+                "output_path": "loaded_account"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "create_account",
+        "concurrency": 1,
+        "scenarios": [
+          {
+            "name": "create_account",
+            "actions": [
+              {
+                "input": "{\"network\":\"Testnet\", \"blockchain\":\"Harmony\", \"sub_network_identifier\":{\"network\":\"shard 0\", \"metadata\":{\"is_beacon\": true}}}",
+                "type": "set_variable",
+                "output_path": "network"
+              },
+              {
+                "input": "{\"curve_type\": \"secp256k1\"}",
+                "type": "generate_key",
+                "output_path": "key"
+              },
+              {
+                "input": "{\"network_identifier\": {{network}}, \"public_key\": {{key.public_key}}}",
+                "type": "derive",
+                "output_path": "account"
+              },
+              {
+                "input": "{\"account_identifier\": {{account.account_identifier}}, \"keypair\": {{key}}}",
+                "type": "save_account"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "transfer",
+        "concurrency": 1,
+        "scenarios": [
+          {
+            "name": "transfer",
+            "actions": [
+              {
+                "input": "{\"network\":\"Testnet\", \"blockchain\":\"Harmony\", \"sub_network_identifier\":{\"network\":\"shard 0\", \"metadata\":{\"is_beacon\": true}}}",
+                "type": "set_variable",
+                "output_path": "transfer.network"
+              },
+              {
+                "input": "{\"symbol\":\"ONE\", \"decimals\":18}",
+                "type": "set_variable",
+                "output_path": "currency"
+              },
+              {
+                "input": "{\"minimum_balance\":{\"value\": \"10000000000000000\", \"currency\": {{currency}}}}",
+                "type": "find_balance",
+                "output_path": "sender"
+              },
+              {
+                "input": "\"53000000000000\"",
+                "type": "set_variable",
+                "output_path": "max_fee"
+              },
+              {
+                "input": "{\"operation\":\"subtraction\", \"left_value\": {{sender.balance.value}}, \"right_value\": {{max_fee}}}",
+                "type": "math",
+                "output_path": "available_amount"
+              },
+              {
+                "input": "{\"minimum\": \"1\", \"maximum\": {{available_amount}}}",
+                "type": "random_number",
+                "output_path": "recipient_amount"
+              },
+              {
+                "input": "{\"recipient_amount\":{{recipient_amount}}}",
+                "type": "print_message"
+              },
+              {
+                "input": "{\"operation\":\"subtraction\", \"left_value\": \"0\", \"right_value\":{{recipient_amount}}}",
+                "type": "math",
+                "output_path": "sender_amount"
+              },
+              {
+                "input": "{\"not_account_identifier\":[{{sender.account_identifier}}], \"minimum_balance\":{\"value\": \"0\", \"currency\": {{currency}}}, \"create_limit\": 100, \"create_probability\": 50}",
+                "type": "find_balance",
+                "output_path": "recipient"
+              },
+              {
+                "input": "\"1\"",
+                "type": "set_variable",
+                "output_path": "transfer.confirmation_depth"
+              },
+              {
+                "input": "[{\"operation_identifier\":{\"index\":0},\"type\":\"Transfer\",\"account\":{{sender.account_identifier}},\"amount\":{\"value\":{{sender_amount}},\"currency\":{{currency}}}},{\"operation_identifier\":{\"index\":1},\"related_operations\":[{\"index\":0}],\"type\":\"Transfer\",\"account\":{{recipient.account_identifier}},\"amount\":{\"value\":{{recipient_amount}},\"currency\":{{currency}}}}]",
+                "type": "set_variable",
+                "output_path": "transfer.operations"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "end_conditions": {
+      "create_account": 10,
+      "transfer": 10
+    }
   }
 }
