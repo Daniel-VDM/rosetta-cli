@@ -1,0 +1,56 @@
+{
+  "network": {
+    "blockchain": "Harmony",
+    "network": "Testnet",
+    "sub_network_identifier": {
+      "network": "shard 0",
+      "metadata": {
+        "is_beacon": true
+      }
+    }
+  },
+  "online_url": "http://localhost:9700",
+  "data_directory": "",
+  "http_timeout": 300,
+  "tip_delay": 300,
+  "prefunded_accounts": [
+    {
+      "privkey": "0x1f84c95ac16e6a50f08d44c7bde7aff8742212fda6e4321fde48bf83bef266dc",
+      "account_identifier": {
+        "address": "one155jp2y76nazx8uw5sa94fr0m4s5aj8e5xm6fu3",
+        "metadata": {
+          "hex_address": "0xA5241513DA9F4463F1d4874b548dFBAC29D91f34"
+        }
+      },
+      "curve_type": "secp256k1",
+      "currency": {
+        "symbol": "ONE",
+        "decimals": 18
+      }
+    }
+  ],
+  "data": {
+    "historical_balance_enabled": false,
+    "reconciliation_disabled": false,
+    "inactive_discrepency_search_disabled": false,
+    "balance_tracking_disabled": false,
+    "end_conditions": {
+      "reconciliation_coverage": 0.95
+    },
+    "results_output_file": ""
+  },
+  "construction": {
+    "offline_url": "http://localhost:9700",
+    "max_offline_connections": 1,
+    "stale_depth": 0,
+    "broadcast_limit": 0,
+    "ignore_broadcast_failures": false,
+    "clear_broadcasts": false,
+    "broadcast_behind_tip": false,
+    "block_broadcast_limit": 0,
+    "rebroadcast_all": false,
+    "workflows": [
+      // TODO: implement
+    ]
+  }
+}
