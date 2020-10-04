@@ -28,7 +28,7 @@
     "offline_url": "http://localhost:9799",
     "max_offline_connections": 1,
     "stale_depth": 0,
-    "broadcast_limit": 1,
+    "broadcast_limit": 3,
     "ignore_broadcast_failures": false,
     "clear_broadcasts": true,
     "broadcast_behind_tip": false,
@@ -114,7 +114,7 @@
       },
       {
         "name": "transfer",
-        "concurrency": 1,
+        "concurrency": 10,
         "scenarios": [
           {
             "name": "transfer",
@@ -148,10 +148,6 @@
                 "input": "{\"minimum\": \"1\", \"maximum\": {{available_amount}}}",
                 "type": "random_number",
                 "output_path": "recipient_amount"
-              },
-              {
-                "input": "{\"recipient_amount\":{{recipient_amount}}}",
-                "type": "print_message"
               },
               {
                 "input": "{\"operation\":\"subtraction\", \"left_value\": \"0\", \"right_value\":{{recipient_amount}}}",
@@ -179,7 +175,7 @@
       },
       {
         "name": "cross_shard_transfer",
-        "concurrency": 1,
+        "concurrency": 10,
         "scenarios": [
           {
             "name": "transfer",
@@ -213,10 +209,6 @@
                 "input": "{\"minimum\": \"1\", \"maximum\": {{available_amount}}}",
                 "type": "random_number",
                 "output_path": "recipient_amount"
-              },
-              {
-                "input": "{\"recipient_amount\":{{recipient_amount}}}",
-                "type": "print_message"
               },
               {
                 "input": "{\"operation\":\"subtraction\", \"left_value\": \"0\", \"right_value\":{{recipient_amount}}}",
@@ -249,7 +241,7 @@
       },
       {
         "name": "contract_creation",
-        "concurrency": 1,
+        "concurrency": 10,
         "scenarios": [
           {
             "name": "transfer",
@@ -273,25 +265,6 @@
                 "input": "\"530000000000000000\"",
                 "type": "set_variable",
                 "output_path": "max_fee"
-              },
-              {
-                "input": "{\"operation\":\"subtraction\", \"left_value\": {{sender.balance.value}}, \"right_value\": {{max_fee}}}",
-                "type": "math",
-                "output_path": "available_amount"
-              },
-              {
-                "input": "{\"minimum\": \"1\", \"maximum\": {{available_amount}}}",
-                "type": "random_number",
-                "output_path": "recipient_amount"
-              },
-              {
-                "input": "{\"recipient_amount\":{{recipient_amount}}}",
-                "type": "print_message"
-              },
-              {
-                "input": "{\"operation\":\"subtraction\", \"left_value\": \"0\", \"right_value\":{{recipient_amount}}}",
-                "type": "math",
-                "output_path": "sender_amount"
               },
               {
                 "input": "{\"not_account_identifier\":[{{sender.account_identifier}}], \"minimum_balance\":{\"value\": \"0\", \"currency\": {{currency}}}, \"create_limit\": 100, \"create_probability\": 50}",
